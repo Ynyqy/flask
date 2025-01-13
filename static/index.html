@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查询设置</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>输入主题</h1>
+        <form id="keywordsForm">
+            <div class="form-group">
+                <label for="keywordsInput">输入主题：</label>
+                <input type="text" id="keywordsInput" placeholder="输入主题" required>
+            </div>
+
+            <div class="form-group">
+                <label>选择爬取网站：</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="hljgov" value="hljgov"> 黑龙江省交通运输厅</label>
+                    <label><input type="checkbox" id="zgjtb" value="zgjtb"> 中国交通新闻网</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="interval">选择定时执行间隔：</label>
+                <select id="interval">
+                    <option value="1">1分钟</option>
+                    <option value="60">1小时</option>
+                    <option value="1440">1天</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">保存设置</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('keywordsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const keywords = document.getElementById('keywordsInput').value.split(',').map(k => k.trim());
+            const interval = document.getElementById('interval').value;
+
+            const selectedSites = [];
+            if (document.getElementById('hljgov').checked) {
+                selectedSites.push('hljgov');
+            }
+            if (document.getElementById('zgjtb').checked) {
+                selectedSites.push('zgjtb');
+            }
+
+            if (selectedSites.length === 0) {
+                alert('请至少选择一个网站');
+                return;
+            }
+
+            // 请求后端接口提取关键词
+            fetch('/extract-keywords', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: keywords.join(', ')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('关键词已提取并保存');
+                    // 执行定时任务
+                    fetch('/schedule-task', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            keywords: data.keywords,
+                            scraper_names: selectedSites,
+                            interval_minutes: interval
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('定时任务已设置');
+                        } else {
+                            alert('设置失败');
+                        }
+                    });
+                } else {
+                    alert('关键词提取失败');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .checkbox-group label {
+            display: block;
+            margin: 8px 0;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</body>
+</html>
