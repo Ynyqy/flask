@@ -44,7 +44,7 @@ def extract_keywords(text):
 
     data = {
         'text': [text],  # 输入的文本
-        'num': 5  # 提取前5个关键词
+        'num': 5  # 提取前5个关键词。。。
     }
 
     response = requests.post(url, json=data, headers=headers)
