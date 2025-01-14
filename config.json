@@ -1,0 +1,5 @@
+{
+    "keywords": ["交通"],
+    "scraper_names": ["hljgov", "zgjtb"],
+    "interval_minutes": 1
+}

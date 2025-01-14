@@ -5,10 +5,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 
-
 # 从文件读取关键词
 def read_keywords():
-    with open('keywords.json', 'r', encoding='utf-8') as file:
+    with open('config.json', 'r', encoding='utf-8') as file:
         data = json.load(file)
     return data.get('keywords', [])
 
@@ -20,6 +19,7 @@ URLS = [
     "https://jt.hlj.gov.cn/jt/c105090/list.shtml",
     "https://jt.hlj.gov.cn/jt/tzxx/list.shtml",
     "https://jt.hlj.gov.cn/jt/c105081/list.shtml"
+
 ]
 
 HEADERS = {

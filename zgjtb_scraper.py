@@ -6,7 +6,7 @@ import pymysql  # 使用pymysql替换mysql.connector
 
 # 从文件读取关键词
 def read_keywords():
-    with open('keywords.json', 'r', encoding='utf-8') as file:
+    with open('config.json', 'r', encoding='utf-8') as file:
         data = json.load(file)
     return data.get('keywords', [])
 
